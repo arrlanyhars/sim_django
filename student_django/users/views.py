@@ -3,6 +3,7 @@ import json
 from django.shortcuts import render
 from django.http import HttpResponse
 
+from config import RESP_GET_ALL_USERS, RESP_SIGNIN, RESP_SIGNUP
 from student_django.response import Response
 from student_django.jwt import JWTAuth
 from student_django.middleware import jwtRequired
@@ -20,7 +21,7 @@ def get_semua_user(request):
         user = Users.objects.filter(u_deleted_at=None,
                                     u_deleted_by=None).all()
         user = transformer.transform(user)
-        return Response.ok(values=user)
+        return Response.ok(values=user, message=RESP_GET_ALL_USERS)
     else:
         return Response.badRequest(message="Metode tidak ditemukan")
 
@@ -54,8 +55,8 @@ def create_user(request):
 
         user.save() #save to database
 
-        user = transformer.singleTransform(user)
-        return Response.ok(values=user, message="User baru berhasil ditambahkan")
+        user = transformer.response_sign_up_and_sign_in(user)
+        return Response.ok(values=user, message=RESP_SIGNUP)
     
     else:
         return Response.badRequest(message="Metode tidak ditemukan")
@@ -97,11 +98,11 @@ def login(request):
         if not check_password(json_data['password'], user.u_password):
             return Response.badRequest(message="Password atau email salah.")
 
-        user = transformer.singleTransform(user)
+        user = transformer.response_sign_up_and_sign_in(user)
 
         jwt = JWTAuth()
         user['token'] = jwt.encode({"id": user['id']})
-        return Response.ok(values=user, message="Berhasil login")
+        return Response.ok(values=user, message=RESP_SIGNIN)
     
 
 @jwtRequired

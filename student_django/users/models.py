@@ -19,6 +19,8 @@ class Users(models.Model):
     u_created_by = models.CharField(max_length=200, null=True)
     u_updated_by = models.CharField(max_length=200, null=True)
     u_deleted_by = models.CharField(max_length=200, null=True)
+    u_city_id = models.IntegerField(null=True)
+    u_class_id = models.IntegerField(null=True)
 
     class Meta:
         db_table = 'users'
